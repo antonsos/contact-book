@@ -13,14 +13,31 @@ export class ContactsService {
     private httpClient: HttpClient,
   ) { }
 
-  private contacts$ = new Observable<ContactNfo[]>();
-
-  getContacts(): Observable<ContactNfo[]> {
-    this.contacts$ = this.httpClient.get<ContactNfo[]>(environment.contactsUrl);
-    return this.contacts$;
+  getContactsData(): Observable<ContactNfo[]> {
+    return this.httpClient.get<ContactNfo[]>(environment.contactsUrl);
   }
 
-  get contacts(): Observable<ContactNfo[]> {
-    return this.contacts$;
+  getContacts(): ContactNfo[] {
+    const contactsJson = localStorage.getItem('contactsData');
+    return JSON.parse(contactsJson);
+  }
+
+  getContact(id: string): ContactNfo {
+    const contactsJson = localStorage.getItem('contactsData');
+    const contactDataLocal = JSON.parse(contactsJson);
+    return contactDataLocal.find(item => item.id === id);
+  }
+
+  updateContact(contact: ContactNfo): ContactNfo {
+    let contactsJson = localStorage.getItem('contactsData');
+    const contactsDataLocal = JSON.parse(contactsJson);
+    const contactLocal = contactsDataLocal.find(item => item.id === contact.id);
+    const index = contactsDataLocal.indexOf(contactLocal);
+    contactsDataLocal.splist(index, 1, contact);
+
+    contactsJson = JSON.stringify(contactsDataLocal);
+
+    localStorage.setItem('contactsData', contactsJson);
+    return contact;
   }
 }
